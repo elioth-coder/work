@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div style="
+        float: left;
+        width: 270px;
+        padding: 15px;
+        border-right: 1px solid #bbb;
+        height: 100vh;
+        ">
+        <h1>Enter a person</h1>
+        <form id="personForm" action="">
+            <input type="hidden" name="id" id="hiddenId" value="NULL">
+            <label for="firstName">
+                <span style="display: inline-block; width: 105px;">Enter first name: </span>
+                <input type="text" name="firstName" id="firstName">
+            </label><br>
+            <label for="lastName">
+                <span style="display: inline-block; width: 105px;">Enter last name: </span>
+                <input type="text" name="lastName" id="lastName">
+            </label><br>
+            <label for="role">
+                <span style="display: inline-block; width: 105px;">Enter role: </span>
+                <input type="text" name="role" id="role">
+            </label>
+            <hr>
+            <button type=submit id="submit">Submit</button>    
+            <button style="display: none" type=button id="cancel">Cancel</button>    
+        </form>
+    </div>
+    <div style="
+        float: left;
+        width: 470px;
+        padding: 15px;
+        background-color: #ddd;
+        height: 100vh;
+        ">
+        <h1 style="text-align: center;">List of Persons</h1>
+        <table border="1">
+            <thead>
+            <tr>
+            <th>ID</th>
+            <th>FIRST NAME</th>
+            <th>LAST NAME</th>
+            <th>ROLE</th>
+            <th>ACTION</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="person : ${persons}">
+                <td th:text="${person.id}"></td>
+                <td th:text="${person.firstName}"></td>
+                <td th:text="${person.lastName}"></td>
+                <td th:text="${person.role}"></td>
+                <td>
+                    <button th:onclick="@{'deletePerson(' + ${person.id} + ');'}">Delete</a>
+                    <button th:onclick="@{'editPerson(' + ${person.id} + ');'}">Edit</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+            var persons = /*[[${persons}]]*/ 'default';
+            console.log(persons);
+        /*]]>*/
+        async function baseFetch(url, method='GET', data=null) {
+            const response = await fetch(url, {
+                method, 
+                mode: "cors", 
+                cache: "no-cache", 
+                credentials: "same-origin", 
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                redirect: "follow", 
+                referrerPolicy: "no-referrer", 
+                body: (data != null) ? JSON.stringify(data) : null, 
+            });
+
+            return await response.json();
+        }
+
+
+        async function deletePerson(id) {
+            let continueDelete = confirm("Are you sure you want to delete this person?");
+        
+            if(continueDelete) {
+                let { status, message } = await baseFetch("/person/" + id, "DELETE");
+
+                alert(message);
+
+                if(status == 'success') window.location.reload();
+            }
+        }
+
+        async function editPerson(id) {
+            let toEdit = persons.filter(p => p.id == id)[0];
+            console.log(toEdit);
+
+
+            if(toEdit) {
+                role.value = toEdit.role;
+                firstName.value = toEdit.firstName;
+                lastName.value = toEdit.lastName;
+                hiddenId.value = id;
+                cancel.style.display = 'block';
+            }
+        }
+        personForm.onsubmit = async (e) => {
+            e.preventDefault();
+            let formData = new FormData(personForm);
+
+            console.log(formData.get("id"));
+
+            if(formData.get("id") == 'NULL') {
+                formData.set("id", null);
+            }
+
+            let data = {
+                id: formData.get("id"),
+                firstName: formData.get("firstName"),
+                lastName: formData.get("lastName"),
+                role: formData.get("role"),
+            };
+
+            console.log(data);
+            let method = (formData.get('id') == "null") ? "POST" : "PUT";
+            console.log({data, method});
+            let { status, message } = await baseFetch("/person", method, data);
+
+            alert(message);
+            if(status == 'success') {
+                hiddenId.value = "NULL";
+                cancel.style.display = 'none';
+                firstName.value = "";
+                lastName.value = "";
+                role.value = "";
+                window.location.reload();
+            } 
+        }
+
+        cancel.onclick = () => {
+            cancel.style.display = 'none';
+            hiddenId.value = 'NULL';
+            firstName.value = "";
+            lastName.value = "";
+            role.value = "";
+        }
+    </script>
+</body>
+</html>

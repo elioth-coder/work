@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div style="
+        float: left;
+        width: 270px;
+        padding: 15px;
+        border-right: 1px solid #bbb;
+        height: 100vh;
+        ">
+        <h1>Enter a task</h1>
+        <form id="taskForm" action="">
+            <input type="hidden" name="id" id="hiddenId" value="NULL">
+            <label for="task">
+                <span style="display: inline-block; width: 105px;">Enter a task: </span>
+                <input type="text" name="task" id="task">
+            </label><br>
+            <label for="personnel">
+                <span style="display: inline-block; width: 105px;">Enter a personnel: </span>
+                <input type="text" name="personnel" id="personnel">
+            </label>
+            <hr>
+            <button type=submit id="submit">Submit</button>    
+            <button style="display: none" type=button id="cancel">Cancel</button>    
+        </form>
+    </div>
+    <div style="
+        float: left;
+        width: 470px;
+        padding: 15px;
+        background-color: #ddd;
+        height: 100vh;
+        ">
+        <h1 style="text-align: center;">List of Tasks</h1>
+        <table border="1">
+            <thead>
+            <tr>
+            <th>ID</th>
+            <th>TASK</th>
+            <th>ASSIGNED PERSONNEL</th>
+            <th>ACTION</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="task : ${tasks}">
+                <td th:text="${task.id}"></td>
+                <td th:text="${task.task}"></td>
+                <td th:text="${task.personnel}"></td>
+                <td>
+                    <button th:onclick="@{'deleteTask(' + ${task.id} + ');'}">Delete</a>
+                    <button th:inline="javascript" th:onclick="@{'editTask(' + ${task.id} + ');'}">Edit</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+            var tasks = /*[[${tasks}]]*/ 'default';
+            console.log(tasks);
+        /*]]>*/
+        async function baseFetch(url, method='GET', data=null) {
+            const response = await fetch(url, {
+                method, 
+                mode: "cors", 
+                cache: "no-cache", 
+                credentials: "same-origin", 
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                redirect: "follow", 
+                referrerPolicy: "no-referrer", 
+                body: (data != null) ? JSON.stringify(data) : null, 
+            });
+
+            return await response.json();
+        }
+
+
+        async function deleteTask(id) {
+            let continueDelete = confirm("Are you sure you want to delete this task?");
+        
+            if(continueDelete) {
+                let { status, message } = await baseFetch("/task/" + id, "DELETE");
+
+                alert(message);
+
+                if(status == 'success') window.location.reload();
+            }
+        }
+
+        async function editTask(id) {
+            let toEdit = tasks.filter(t => t.id == id)[0];
+            console.log(toEdit);
+
+
+            if(toEdit) {
+                task.value = toEdit.task;
+                personnel.value = toEdit.personnel;
+                hiddenId.value = id;
+                cancel.style.display = 'block';
+            }
+        }
+
+        taskForm.onsubmit = async (e) => {
+            e.preventDefault();
+            let formData = new FormData(taskForm);
+
+            console.log(formData.get("id"));
+
+            if(formData.get("id") == 'NULL') {
+                formData.set("id", null);
+            }
+
+            let data = {
+                id: formData.get("id"),
+                task: formData.get("task"),
+                personnel: formData.get("personnel"),
+            };
+
+            console.log(data);
+            let method = (formData.get('id') == "null") ? "POST" : "PUT";
+            console.log({data, method});
+            let { status, message } = await baseFetch("/task", method, data);
+
+            alert(message);
+            if(status == 'success') {
+                hiddenId.value = "NULL";
+                cancel.style.display = 'none';
+                task.value = "";
+                personnel.value = "";
+                window.location.reload();
+            } 
+        }
+
+        cancel.onclick = () => {
+            cancel.style.display = 'none';
+            hiddenId.value = 'NULL';
+            task.value = "";
+            personnel.value = "";
+        }
+    </script>
+</body>
+</html>
