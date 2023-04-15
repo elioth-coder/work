@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div style="clear:both; margin: 10px; padding: 15px; background-color: #eee;">
+        | <a style="margin: 5px;" th:href="@{/person}">Personnels</a>
+        | <a style="margin: 5px;" th:href="@{/task}">Tasks</a>
+        |
+    </div>
+    <div style="
+        float: left;
+        width: 200px;
+        padding: 15px;
+        border-right: 1px solid #bbb;
+        height: 100vh;
+        ">
+    <h1>Personnel: </h1>
+        <table border="1">
+            <tr>
+                <th>Full name: </th>
+                <td th:text="${person.firstName} + ' ' + ${person.lastName}"></td>
+            </tr>
+            <tr>
+                <th>Role: </th>
+                <td th:text="${person.role}"></td>
+            </tr>
+        </table>
+    </div>
+    <div style="
+        float: left;
+        width: calc(100% - 300px);
+        padding: 15px;
+        height: 100vh;
+        ">
+        <h1>List of Tasks</h1>
+        <table border="1">
+            <thead>
+            <tr>
+            <th>ID</th>
+            <th>TASKS</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="task : ${tasks}">
+                <td th:text="${task.id}"></td>
+                <td th:text="${task.task}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(tasks)}">
+                <td colspan="2" style="text-align: center;">No tasks found.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

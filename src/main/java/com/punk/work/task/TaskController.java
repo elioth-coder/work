@@ -12,16 +12,20 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.punk.work.JsonResponse;
+import com.punk.work.person.PersonService;
 
 @Controller
 public class TaskController {
     
     @Autowired
     private TaskService taskService;
+    @Autowired
+    private PersonService personService;
 
     @GetMapping("/task")
     public String get(Model model) {
         model.addAttribute("tasks", taskService.findAll());
+        model.addAttribute("persons", personService.findAll());
 
         return "task";
     }

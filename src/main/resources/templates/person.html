@@ -7,41 +7,45 @@
     <title>Document</title>
 </head>
 <body>
+    <div style="clear:both; margin: 10px; padding: 15px; background-color: #eee;">
+        | <a style="margin: 5px;" th:href="@{/person}">Personnels</a>
+        | <a style="margin: 5px;" th:href="@{/task}">Tasks</a>
+        |
+    </div>
     <div style="
         float: left;
-        width: 270px;
+        width: 200px;
         padding: 15px;
         border-right: 1px solid #bbb;
         height: 100vh;
         ">
-        <h1>Enter a person</h1>
+        <h1>Personnel</h1>
         <form id="personForm" action="">
             <input type="hidden" name="id" id="hiddenId" value="NULL">
             <label for="firstName">
-                <span style="display: inline-block; width: 105px;">Enter first name: </span>
+                <span style="display: inline-block; width: 105px;">First name: </span>
                 <input type="text" name="firstName" id="firstName">
             </label><br>
             <label for="lastName">
-                <span style="display: inline-block; width: 105px;">Enter last name: </span>
+                <span style="display: inline-block; width: 105px;">Last name: </span>
                 <input type="text" name="lastName" id="lastName">
             </label><br>
             <label for="role">
-                <span style="display: inline-block; width: 105px;">Enter role: </span>
+                <span style="display: inline-block; width: 105px;">Role: </span>
                 <input type="text" name="role" id="role">
             </label>
             <hr>
-            <button type=submit id="submit">Submit</button>    
-            <button style="display: none" type=button id="cancel">Cancel</button>    
+            <button type="submit" id="submit">Submit</button>    
+            <button style="display: none" type="button" id="cancel">Cancel</button>    
         </form>
     </div>
     <div style="
         float: left;
-        width: 470px;
+        width: calc(100% - 300px);
         padding: 15px;
-        background-color: #ddd;
         height: 100vh;
         ">
-        <h1 style="text-align: center;">List of Persons</h1>
+        <h1>List of Persons</h1>
         <table border="1">
             <thead>
             <tr>
@@ -61,6 +65,9 @@
                 <td>
                     <button th:onclick="@{'deletePerson(' + ${person.id} + ');'}">Delete</a>
                     <button th:onclick="@{'editPerson(' + ${person.id} + ');'}">Edit</a>
+                    <a th:href="@{/person/{id}/tasks(id=${person.id})}">
+                        <button type="button" id="cancel">View Tasks</button>    
+                    </a>        
                 </td>
             </tr>
             </tbody>

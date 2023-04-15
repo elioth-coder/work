@@ -7,43 +7,52 @@
     <title>Document</title>
 </head>
 <body>
+    <div style="clear:both; margin: 10px; padding: 15px; background-color: #eee;">
+        | <a style="margin: 5px;" th:href="@{/person}">Personnels</a>
+        | <a style="margin: 5px;" th:href="@{/task}">Tasks</a>
+        |
+    </div>
     <div style="
         float: left;
-        width: 270px;
+        width: 200px;
         padding: 15px;
         border-right: 1px solid #bbb;
         height: 100vh;
         ">
-        <h1>Enter a task</h1>
-        <form id="taskForm" action="">
+        <h1>Task</h1>
+        <form id="taskForm">
             <input type="hidden" name="id" id="hiddenId" value="NULL">
             <label for="task">
-                <span style="display: inline-block; width: 105px;">Enter a task: </span>
+                <span style="display: inline-block; width: 105px;">Task: </span><br>
                 <input type="text" name="task" id="task">
             </label><br>
-            <label for="personnel">
-                <span style="display: inline-block; width: 105px;">Enter a personnel: </span>
-                <input type="text" name="personnel" id="personnel">
+            <label for="person_id">
+                <span style="display: inline-block; width: 105px;">Personnel: </span><br>
+                <select type="text" name="person_id" id="person_id">
+                    <option th:each="person : ${persons}"
+                        th:value="${person.id}"
+                        th:text="${person.role} + ' - ' + ${person.firstName} + ' ' + ${person.lastName}"
+                    ></option>
+                </select>
             </label>
             <hr>
-            <button type=submit id="submit">Submit</button>    
+            <button type="submit" id="submit">Submit</button>    
             <button style="display: none" type=button id="cancel">Cancel</button>    
         </form>
     </div>
     <div style="
         float: left;
-        width: 470px;
+        width: calc(100% - 300px);
         padding: 15px;
-        background-color: #ddd;
         height: 100vh;
         ">
-        <h1 style="text-align: center;">List of Tasks</h1>
+        <h1>List of Tasks</h1>
         <table border="1">
             <thead>
             <tr>
             <th>ID</th>
             <th>TASK</th>
-            <th>ASSIGNED PERSONNEL</th>
+            <th>PERSONNEL</th>
             <th>ACTION</th>
             </tr>
             </thead>
@@ -51,7 +60,7 @@
             <tr th:each="task : ${tasks}">
                 <td th:text="${task.id}"></td>
                 <td th:text="${task.task}"></td>
-                <td th:text="${task.personnel}"></td>
+                <td th:text="${task.person.firstName} + ' ' + ${task.person.lastName}"></td>
                 <td>
                     <button th:onclick="@{'deleteTask(' + ${task.id} + ');'}">Delete</a>
                     <button th:inline="javascript" th:onclick="@{'editTask(' + ${task.id} + ');'}">Edit</a>
@@ -99,10 +108,8 @@
             let toEdit = tasks.filter(t => t.id == id)[0];
             console.log(toEdit);
 
-
             if(toEdit) {
                 task.value = toEdit.task;
-                personnel.value = toEdit.personnel;
                 hiddenId.value = id;
                 cancel.style.display = 'block';
             }
@@ -112,8 +119,6 @@
             e.preventDefault();
             let formData = new FormData(taskForm);
 
-            console.log(formData.get("id"));
-
             if(formData.get("id") == 'NULL') {
                 formData.set("id", null);
             }
@@ -121,12 +126,11 @@
             let data = {
                 id: formData.get("id"),
                 task: formData.get("task"),
-                personnel: formData.get("personnel"),
+                person_id: formData.get("person_id"),
             };
 
             console.log(data);
             let method = (formData.get('id') == "null") ? "POST" : "PUT";
-            console.log({data, method});
             let { status, message } = await baseFetch("/task", method, data);
 
             alert(message);
@@ -134,7 +138,6 @@
                 hiddenId.value = "NULL";
                 cancel.style.display = 'none';
                 task.value = "";
-                personnel.value = "";
                 window.location.reload();
             } 
         }
@@ -143,7 +146,6 @@
             cancel.style.display = 'none';
             hiddenId.value = 'NULL';
             task.value = "";
-            personnel.value = "";
         }
     </script>
 </body>
